@@ -126,8 +126,14 @@ struct ContentView: View {
     private var toolbarContent: some ToolbarContent {
 #if os(iOS)
         ToolbarItem(placement: .navigationBarLeading) {
-            Button(action: resetConversation) {
-                Label("New Chat", systemImage: "square.and.pencil")
+            HStack {
+                Button(action: resetConversation) {
+                    Label("New Chat", systemImage: "square.and.pencil")
+                }
+                Button(action: clearMessages) {
+                    Label("Clear", systemImage: "trash")
+                }
+                .foregroundColor(.red)
             }
         }
         ToolbarItem(placement: .navigationBarTrailing) {
@@ -140,6 +146,12 @@ struct ContentView: View {
             Button(action: resetConversation) {
                 Label("New Chat", systemImage: "square.and.pencil")
             }
+        }
+        ToolbarItem {
+            Button(action: clearMessages) {
+                Label("Clear", systemImage: "trash")
+            }
+            .foregroundColor(.red)
         }
         ToolbarItem {
             Button(action: { showSettings = true }) {
@@ -156,7 +168,7 @@ struct ContentView: View {
             stopStreaming()
         } else {
             guard model.isAvailable else {
-                showError(message: "The language model is not available. Reason: \(availabilityDescription(for: model.availability))")
+                showError(message: String(localized: "The language model is not available. Reason: \(availabilityDescription(for: model.availability))"))
                 return
             }
             sendMessage()
@@ -178,7 +190,7 @@ struct ContentView: View {
                 if session == nil { session = createSession() }
                 
                 guard let currentSession = session else {
-                    showError(message: "Session could not be created.")
+                    showError(message: String(localized: "Session could not be created."))
                     isResponding = false
                     return
                 }
@@ -191,7 +203,7 @@ struct ContentView: View {
 #if os(iOS)
                         hapticStreamGenerator.selectionChanged()
 #endif
-                        updateLastMessage(with: partialResponse)
+                        updateLastMessage(with: partialResponse.content)
                     }
                 } else {
                     let response = try await currentSession.respond(to: prompt, options: options)
@@ -200,7 +212,7 @@ struct ContentView: View {
             } catch is CancellationError {
                 // User cancelled generation
             } catch {
-                showError(message: "An error occurred: \(error.localizedDescription)")
+                showError(message: String(localized: "An error occurred: \(error.localizedDescription)"))
             }
             
             isResponding = false
@@ -229,23 +241,29 @@ struct ContentView: View {
         session = nil
     }
     
+    private func clearMessages() {
+        stopStreaming()
+        messages.removeAll()
+        // Keep the session alive for continued conversation
+    }
+    
     private func availabilityDescription(for availability: SystemLanguageModel.Availability) -> String {
         switch availability {
             case .available:
-                return "Available"
+                return String(localized: "Available")
             case .unavailable(let reason):
                 switch reason {
                     case .deviceNotEligible:
-                        return "Device not eligible"
+                        return String(localized: "Device not eligible")
                     case .appleIntelligenceNotEnabled:
-                        return "Apple Intelligence not enabled in Settings"
+                        return String(localized: "Apple Intelligence not enabled in Settings")
                     case .modelNotReady:
-                        return "Model assets not downloaded"
+                        return String(localized: "Model assets not downloaded")
                     @unknown default:
-                        return "Unknown reason"
+                        return String(localized: "Unknown reason")
                 }
             @unknown default:
-                return "Unknown availability"
+                return String(localized: "Unknown availability")
         }
     }
     

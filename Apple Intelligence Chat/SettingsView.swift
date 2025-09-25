@@ -26,22 +26,24 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Generation") {
+                Section(header: Text("Generation")) {
                     Toggle("Stream Responses", isOn: $useStreaming)
                     VStack(alignment: .leading) {
                         Text("Temperature: \(temperature, specifier: "%.2f")")
                         Slider(value: $temperature, in: 0.0...2.0, step: 0.1)
+                            .accessibilityLabel("Temperature")
+                            .accessibilityValue("\(temperature, specifier: "%.2f")")
                     }
                     .padding(.vertical, 4)
                 }
                 
-                Section("System Instructions") {
+                Section(header: Text("System Instructions")) {
                     TextEditor(text: $systemInstructions)
                         .frame(minHeight: 100)
                         .font(.body)
                 }
             }
-            .navigationTitle("Settings")
+            .navigationTitle(Text("Settings"))
 #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
 #endif
