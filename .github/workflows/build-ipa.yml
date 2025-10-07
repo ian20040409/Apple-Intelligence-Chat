@@ -14,7 +14,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 如果有使用 CocoaPods，可取消註解
+      # 若有用 CocoaPods，可解除註解
       #- name: Install CocoaPods dependencies
       #  run: |
       #    cd ios
@@ -45,7 +45,7 @@ jobs:
           cd -
 
       - name: Upload unsigned IPA artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: unsigned-ipa
           path: build/*.ipa
