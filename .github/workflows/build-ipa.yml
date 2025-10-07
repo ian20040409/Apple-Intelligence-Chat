@@ -2,32 +2,27 @@ name: Build Unsigned IPA
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: macos-latest
-
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      # 若有用 CocoaPods，可解除註解
-      #- name: Install CocoaPods dependencies
-      #  run: |
-      #    cd ios
-      #    pod install
-      #    cd ..
+      - name: Show available schemes (debug info)
+        run: |
+          xcodebuild -list -project "Apple Intelligence Chat.xcodeproj"
 
       - name: Build Xcode archive (unsigned)
         run: |
           xcodebuild archive \
-            -workspace "YourApp.xcworkspace" \    # 或 -project "YourApp.xcodeproj"
-            -scheme "YourApp" \
+            -project "Apple Intelligence Chat.xcodeproj" \
+            -scheme "Apple Intelligence Chat" \
             -configuration Release \
-            -archivePath build/YourApp.xcarchive \
+            -archivePath build/AppleIntelligenceChat.xcarchive \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
@@ -35,8 +30,8 @@ jobs:
 
       - name: Create unsigned IPA
         run: |
-          APP_NAME="YourApp"
-          ARCHIVE_PATH="build/${APP_NAME}.xcarchive"
+          APP_NAME="Apple Intelligence Chat"
+          ARCHIVE_PATH="build/AppleIntelligenceChat.xcarchive"
           OUTPUT_DIR="build"
           mkdir -p "${OUTPUT_DIR}/Payload"
           cp -r "${ARCHIVE_PATH}/Products/Applications/${APP_NAME}.app" "${OUTPUT_DIR}/Payload/"
